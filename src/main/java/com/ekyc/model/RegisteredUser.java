@@ -19,7 +19,7 @@ import java.util.function.*;
 public class RegisteredUser implements Serializable{
 	/*
 	 */
-	private static final long serialVersionUID = 8275984179787580879L;
+	private static final long serialVersionUID = 8275984579787580879L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
