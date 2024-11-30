@@ -1,4 +1,5 @@
 package com.ekyc.model;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.*;
 
@@ -15,7 +16,11 @@ import java.util.function.*;
 @Entity
 @Table(name="registered_user")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class RegisteredUser {
+public class RegisteredUser implements Serializable{
+	/*
+	 */
+	private static final long serialVersionUID = 8275984279787580879L;
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="ID")
