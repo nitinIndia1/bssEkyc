@@ -51,6 +51,7 @@ import com.ekyc.beans.IdRequest;
 import com.ekyc.beans.IdRequest2;
 import com.ekyc.beans.IdRequest3;
 import com.ekyc.beans.MsisdnUpdate;
+import com.ekyc.beans.NoKYC;
 import com.ekyc.beans.OcrAddress_;
 import com.ekyc.beans.OcrId;
 import com.ekyc.beans.OrgMsisdn_;
@@ -1062,7 +1063,13 @@ public class MainController {
 		}
 		return jwtToken;
 	}
+	@PostMapping(value="processMinimalKYC/{type}")
+	public ResponseEntity<CoreResponseHandler> processMinimalEkyc(@Valid @ModelAttribute final NoKYC ocrId, @PathVariable(name = "type",required = true)String type){
+		
+		return customerService.saveNoKYCCustomer(ocrId,type);
+		
 
+	}
 	@GetMapping(value = "reg/user/{user}")
 	public ResponseEntity<?> findUsers(@PathVariable(name = "user",required = true)String user){
 
