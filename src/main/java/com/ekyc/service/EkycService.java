@@ -24,6 +24,7 @@ import com.ekyc.beans.SpecialMsisdns_;
 import com.ekyc.beans.StatusUpdate;
 import com.ekyc.beans.VerifiedMsisdn_;
 import com.ekyc.beans.VerifyMsisdnSpecial;
+import com.ekyc.model.Agent;
 import com.ekyc.model.SimLostDamageDetail;
 import com.ekyc.utils.CoreResponseHandler;
 
@@ -120,5 +121,13 @@ public interface EkycService {
 	
 	ResponseEntity<CoreResponseHandler> saveThumb(IdRequest3 idRequest);
 	ResponseEntity<CoreResponseHandler> saveSelfie(IdRequest3 idRequest);
+	
+	ResponseEntity<CoreResponseHandler> agentBulkSave(List<Agent> lsAgents);
+	
+	ResponseEntity<CoreResponseHandler> globalsearch(String value);
+	ResponseEntity<CoreResponseHandler> fetchThumb(String token);
+	ResponseEntity<CoreResponseHandler> findByDateRangeEkycCounts(String from,String to);
+	ResponseEntity<CoreResponseHandler> findByTotalEkycCounts();
+	ResponseEntity<CoreResponseHandler> findAllDocuments(String token);
 	
 }

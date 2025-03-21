@@ -33,7 +33,9 @@ public class ImageServiceImpl implements ImageService{
 	///home/apache-tomcat-8.5.85/webapps/ekyc/ROOT/
 	//private static String UPLOADED_FOLDER = "/home/apache-tomcat-8.5.85/webapps/ROOT/";
 	//private static String UPLOADED_FOLDER = "/home/apache-tomcat-8.5.85/webapps/ekyc/ROOT/";
-	private static String UPLOADED_FOLDER = "/home/wpitsadmin/apache-tomcat-8.5.85/ekyc/ROOT/";
+	//private static String UPLOADED_FOLDER = "/home/wpitsadmin/apache-tomcat-8.5.85/ekyc/ROOT/";
+	private static String UPLOADED_FOLDER = "/home/wpitsadmin/apache-tomcat-8.5.85/webapps/ROOT/";
+	
 	
 	//private static String UPLOADED_FOLDER = "C:\\Program Files\\Apache Software Foundation\\Tomcat 8.5\\webapps\\ROOT\\";
 	

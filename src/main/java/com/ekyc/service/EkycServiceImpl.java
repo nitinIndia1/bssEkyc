@@ -34,6 +34,7 @@ import com.ekyc.beans.Agent_;
 import com.ekyc.beans.CustomCustomerDTO;
 import com.ekyc.beans.CustomerObject;
 import com.ekyc.beans.DocumentDetail;
+import com.ekyc.beans.DocumentList;
 import com.ekyc.beans.DocumentUpdateRequest;
 import com.ekyc.beans.Document_;
 import com.ekyc.beans.EkycActivate;
@@ -1033,7 +1034,7 @@ private VerifiedMsisdnRepository vRepo;
 				}
 				String DocumentType = null;
 				if(UserType.equals("CITIZEN")) {
-					DocumentType = "National ID";
+					DocumentType = "Electric Meter ID";
 				}
 				else {
 					DocumentType = "Passport";
@@ -4333,24 +4334,7 @@ CustomerDetailRepository repo;
 				
 			}
 		}
-//			catch(HttpClientErrorException ex) {
-//			ex.printStackTrace();
-//			String lMsg = ex.getLocalizedMessage();
-//			//String msg = ex.getMessage();
-////			JSONParser parser =new JSONParser();
-////			JSONObject obj = null;
-////			try {
-////			obj = (JSONObject)parser.parse(lMsg);
-////		}catch(Exception ex_) {
-////			ex_.printStackTrace();
-////		}
-//			System.out.println("exception check check check check check ");
-//			
-//			long l_end_time = System.currentTimeMillis();
-//			long l_diff = l_end_time-l_time_start;
-//			return	new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.INTERNAL_SERVER_ERROR, ResponseStatusEnum.FAILED, ApplicationResponse.Failed,lMsg,l_diff+" ms"),HttpStatus.INTERNAL_SERVER_ERROR);				
-//
-//		}
+
 		
 		
 		catch(Exception ex) {
@@ -4646,7 +4630,607 @@ CustomerDetailRepository repo;
 		
 	}
 
+	@Override
+	public ResponseEntity<CoreResponseHandler> agentBulkSave(
+			List<Agent> lsAgents) {
+		long l_time_start = System.currentTimeMillis();
+
+		List<Agent> saveAllAgents = agentRepository.saveAll(lsAgents);
+		long l_end_time = System.currentTimeMillis();
+		long l_diff = l_end_time-l_time_start;
+		
+		return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL,"ok saved.",l_diff+" ms") ,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<CoreResponseHandler> globalsearch(String value) {
+		long l_time_start = System.currentTimeMillis();
+
+		List<CustomerDetail> lsCustomerDetail = custService.findByTokenOrName(value);
+		System.out.println(lsCustomerDetail.size()+" @@@");
+		if(lsCustomerDetail==null || lsCustomerDetail.size()==0) {
+			long l_end_time = System.currentTimeMillis();
+			long l_diff = l_end_time-l_time_start;
+			return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "no record found",l_diff+" ms"),HttpStatus.NOT_FOUND);			
+		}
+		else {
+			List<FetchResponse> fetch =  searchCustomerGlobal(lsCustomerDetail);
+			long l_end_time = System.currentTimeMillis();
+			long l_diff = l_end_time-l_time_start;
+			return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL,fetch,l_diff+" ms") ,HttpStatus.OK);												
+
+		}
+		
+	}
 
 
+private List<FetchResponse> searchCustomerGlobal(List<CustomerDetail> lsCustomerDeatils){
+
+	long l_time_start = System.currentTimeMillis();
+
+
+	//2023-10-25 09:31:28
+	List<FetchResponse> lsRes = null;
+	//		Date dt = null;
+	//		try {
+	//		dt = new SimpleDateFormat("yyyy-MM-dd").parse(newApplicationDate);
+	//		}catch(Exception ex) {
+	//			ex.printStackTrace();
+	//		}
+	//lsCustomerDeatils =  custService.fetchByDate(newApplicationDate);
+	if(lsCustomerDeatils!=null && lsCustomerDeatils.size()>0) {
+		lsRes = new ArrayList<FetchResponse>();
+		for(CustomerDetail cust:lsCustomerDeatils) {
+			try {
+			FetchResponse res = new FetchResponse();
+
+			String ApplicationId = cust.getCustomerId()+"";
+			String firstName = cust.getFirstName()==null?"":cust.getFirstName();
+			String maidenName = cust.getMaidenName()==null?"":cust.getMaidenName();
+			String lastName = cust.getLastName()==null?"":cust.getLastName();
+			String FullName = firstName+" "+maidenName+" "+lastName;
+			String Nationality = cust.getNationality()==null || cust.getNationality().equals("")?"":cust.getNationality();
+			String resType = cust.getResidentType()==null || cust.getResidentType().equals("")?"":cust.getResidentType();
+			String pmUid = cust.getPmUid()==null || cust.getPmUid().equals("")?"":cust.getPmUid();
+			String rechargeType = cust.getRechargeType()==null || cust.getRechargeType().equals("")?"":cust.getRechargeType();
+			String customerOrAgent = cust.getUserType()==null || cust.getUserType().equals("")?"":cust.getUserType();
+			String crmInfo = cust.getCrmInfo()==null || cust.getCrmInfo().equals("")?"":cust.getCrmInfo();
+			String UserType = null;
+			if(resType!=null && !resType.equals("")&& resType.equals("citizen")) {
+				UserType = "CITIZEN";
+			}
+			else if(resType!=null && !resType.equals("")&& resType.equals("tourist")) {
+				UserType = "TOURIST";
+			}
+			else if(resType!=null && !resType.equals("")&& resType.equals("resident")) {
+				UserType = "RESIDENT";
+			}
+			else {
+				UserType = "";
+			}
+			String DocumentType = null;
+			if(UserType.equals("CITIZEN")) {
+				DocumentType = "Electric Meter ID";
+			}
+			else {
+				DocumentType = "Passport";
+			}
+			String DocumentId =  cust.getId()==null || cust.getId().equals("")?"":cust.getId();
+
+			String email=cust.getEmail()==null?"":cust.getEmail();
+			String alternateNumber = cust.getAlternateNumber()==null?"":cust.getAlternateNumber();
+			String newCustomer = cust.getNewCustomer()==null?"no":cust.getNewCustomer();
+			String permitValue = cust.getPermitValue()==null?"":cust.getPermitValue();
+			String address = cust.getAddress()==null?"":cust.getAddress();
+
+			String Date_Of_Birth = cust.getDob()==null?"": new SimpleDateFormat("dd-MM-yyyy").format(cust.getDob());
+			String gender_ = cust.getGender()==null || cust.getGender().equals("")?null:cust.getGender();
+			//String Gender = gender_==null?"":gender_.equals("F")?"Female":"Male";
+
+			Image img = cust.getImage()==null?null:cust.getImage();
+			String OriginalPhoto = null;
+			String eKYCPhoto = null;
+			String verifiedPhoto = null;
+			String OriginalPhoto_url = null;
+			String eKYCPhoto_url = null;
+			String verifiedPhoto_url = null;
+			String thumb_impression_url = null;
+			
+			if(img!=null) {
+//				OriginalPhoto = img.getOriginalPhotoBase64();
+//				eKYCPhoto = img.getKycPhotoBase64();
+//				verifiedPhoto = img.getVerifiedPhotoBase64();
+//				
+				OriginalPhoto = null;
+				eKYCPhoto = null;
+				verifiedPhoto =null;
+				
+				
+				OriginalPhoto_url=img.getOriginalPhotoUrl();
+				eKYCPhoto_url = img.getKycPhotoUrl();
+				verifiedPhoto_url=img.getVerifiedPhotoUrl();
+				thumb_impression_url = img.getThumbImpressionUrl();
+			}
+
+			Document document =cust.getDocument();
+			List<DocumentDetail> documentList = null;
+			if(document!=null) {
+				documentList = new ArrayList<DocumentDetail>();
+
+//				String bank =  document.getDocument1Type();
+//				String electricity = document.getDocument2Type();
+//				String permit = document.getDocument3Type();
+//				String visa = document.getDocument4Type();
+//				String uid = document.getDocument5Type();
+//				String water = document.getDocument6Type();
+//				String telecom = document.getDocument7Type();
+//				String consent = document.getDocument8Type();
+				
+				String bank =  null;
+				String electricity = null;
+				String permit = null;
+				String visa = null;
+				String uid = null;
+				String water = null;
+				String telecom = null;
+				String consent = null;
+				String incorporationLetter = null;
+				String vat=null;
+				String brn=null;
+				String utility=null;
+				String authorizationLetter=null;
+				String emp_utility_org=null;
+				String touristCert=null;
+				String authorizationLetter_part2=null;
+				String workPermit=null;
+				
+				
+				
+				
+				
+				
+				String bank_url =  document.getDocumentUrl();
+				String electricity_url = document.getDocument2Url();
+				String permit_url = document.getDocument3Url();
+				String visa_url = document.getDocument4Url();
+				String uid_url = document.getDocument5Url();
+				String water_url = document.getDocument6Url();
+				String telecom_url = document.getDocument7Url();
+				String consent_url = document.getDocument8Url();
+				String incorporationLetter_url = document.getDocument9Url();
+				String vat_url= document.getDocument10Url();
+				String brn_url= document.getDocument11Url();
+				String utility_url= document.getDocument12Url();
+				String authorizationLetter_url= document.getDocument13Url();
+				String emp_utility_org_url= document.getDocument14Url();
+				String touristCert_url= document.getDocument15Url();
+				String authorizationLetter_part2_url= document.getDocument16Url();
+				String workPermit_url= document.getDocument17Url();
+				
+				
+				
+				if(bank_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("bank");
+					documentDetail.setDocImage(bank);
+					documentDetail.setDocImage_url(bank_url);
+					documentList.add(documentDetail);
+				}
+				if(electricity_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("electricity");
+					documentDetail.setDocImage(electricity);
+					documentDetail.setDocImage_url(electricity_url);
+					documentList.add(documentDetail);
+				}
+				if(permit_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("permit");
+					documentDetail.setDocImage(permit);
+					documentDetail.setDocImage_url(permit_url);
+					documentList.add(documentDetail);
+				}
+				if(visa_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("visa");
+					documentDetail.setDocImage(visa);
+					documentDetail.setDocImage_url(visa_url);
+					documentList.add(documentDetail);
+				}
+				if(uid_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("uid");
+					documentDetail.setDocImage(uid);
+					documentDetail.setDocImage_url(uid_url);
+					documentList.add(documentDetail);
+				}
+				if(water_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("water");
+					documentDetail.setDocImage(water);
+					documentDetail.setDocImage_url(water_url);
+					documentList.add(documentDetail);
+				}
+				if(telecom_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("telecom");
+					documentDetail.setDocImage(telecom);
+					documentDetail.setDocImage_url(telecom_url);
+					documentList.add(documentDetail);
+				}
+				if(consent_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("consent");
+					documentDetail.setDocImage(consent);
+					documentDetail.setDocImage_url(consent_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+				
+				if(incorporationLetter_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("incorporationLetter");
+					documentDetail.setDocImage(incorporationLetter);
+					documentDetail.setDocImage_url(incorporationLetter_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(vat_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("vat");
+					documentDetail.setDocImage(vat);
+					documentDetail.setDocImage_url(vat_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(brn_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("brn");
+					documentDetail.setDocImage(brn);
+					documentDetail.setDocImage_url(brn_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(authorizationLetter_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("authorizationLetter");
+					documentDetail.setDocImage(authorizationLetter);
+					documentDetail.setDocImage_url(authorizationLetter_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(emp_utility_org_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("emp_utility_org");
+					documentDetail.setDocImage(emp_utility_org);
+					documentDetail.setDocImage_url(emp_utility_org_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(touristCert_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("touristCert");
+					documentDetail.setDocImage(touristCert);
+					documentDetail.setDocImage_url(touristCert_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(authorizationLetter_part2_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("authorizationLetter_part2");
+					documentDetail.setDocImage(authorizationLetter_part2);
+					documentDetail.setDocImage_url(authorizationLetter_part2_url);
+					documentList.add(documentDetail);
+				}
+				
+				
+
+				if(workPermit_url!=null) {
+					DocumentDetail documentDetail = new DocumentDetail();
+					documentDetail.setDocName("workPermit");
+					documentDetail.setDocImage(workPermit);
+					documentDetail.setDocImage_url(workPermit_url);
+					documentList.add(documentDetail);
+				}
+				
+								
+				
+				
+				
+				
+				
+				
+				
+				
+			}
+
+			OtpDetail otpDetail = otpRepo.fetchOtpByToken(cust.getToken());
+			SimDetail simDetail = cust.getSimDetail();
+			SIMDetails simDetails = null;
+			if(simDetail!=null) {
+				simDetails = new SIMDetails();
+				simDetails.setMSISDN(simDetail.getMsisdn());
+				simDetails.setIMSI("");
+
+				if(otpDetail!=null && otpDetail.getIsActive().equals("true")) {
+					simDetails.setStatus("Otp verified");
+				}
+				else if(otpDetail!=null && otpDetail.getIsActive().equals("false")) {
+					simDetails.setStatus("Otp sent");
+				}
+				else if(otpDetail==null) {
+					simDetails.setStatus("Otp not sent");
+				}
+			}
+			else {
+				simDetails = new SIMDetails();
+				simDetails.setMSISDN("");
+				simDetails.setIMSI("");
+				simDetails.setStatus("");
+			}
+
+			String ApplicationDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cust.getCreateDate());
+
+			//String ApplicationMode = "Self";
+			String Status = cust.getKycStatus();
+			String correlation_id = cust.getCorrelationId();
+			String token = cust.getToken();
+
+			Agent agent = null;
+			List<AgentActivation> listActivation = agentActivationRepo.findByCustomerId(cust.getCustomerId()+"");
+			if(listActivation!=null && listActivation.size()>0) {
+				AgentActivation agentActivation =  listActivation.get(0);
+				String agentId = agentActivation.getAgentId()==null || agentActivation.getAgentId().trim().equals("")?null:agentActivation.getAgentId();
+				if(agentId!=null) {
+					int intagentd = Integer.parseInt(agentId);
+					//agent =  agentRepository.findOne(intagentd);
+					agent =  agentRepository.getOne(intagentd);
+					
+					if(agent==null) {
+						agent=null;
+					}
+				}
+				else {agent=null;}
+
+				//Agent agent =  agentRepository.getOne(Integer.parseInt(listActivation.get(0).getCustomerId()));
+			}else {
+				agent=null;
+			}
+
+
+			res.setPassportIssueDate(cust.getPassportDateIssued());
+			res.setPassportExpiryDate(cust.getPassportDateExpired());
+			res.setPassportFromDate(cust.getPassportDateFrom());
+			res.setPassportToDate(cust.getPassportDateTo());
+			res.setApplicationId(ApplicationId);
+			res.setDateOfBirth(Date_Of_Birth);
+			res.setDocumentId(DocumentId);
+			res.setDocumentType(DocumentType);
+			FullName = FullName.replace("null", "");
+			res.setFullName(FullName);
+			res.setGender(gender_);
+			res.setNationality(Nationality);
+			res.setRechargeType(rechargeType);
+			res.setCustomerOrAgent(customerOrAgent);
+			res.setUserType(UserType);
+			res.setOriginalPhoto(OriginalPhoto);
+			res.seteKYCPhoto(eKYCPhoto);
+			res.setOriginalPhoto_url(OriginalPhoto_url);
+			res.seteKYCPhoto_url(eKYCPhoto_url);
+			res.setVerifiedPhoto_url(verifiedPhoto_url);
+			res.setThumb_impression_url(thumb_impression_url);
+			res.setSIMDetails(simDetails);
+			res.setApplicationDate(ApplicationDate);
+			res.setStatus(Status);
+			res.setCorrelation_id(correlation_id);
+			res.setVerifiedPhoto(verifiedPhoto);
+			res.setToken(token);
+			res.setDocumentDetailList(documentList);
+			res.setAlternateNumber(alternateNumber);
+			res.setNewCustomer(newCustomer);
+			res.setEmail(email);
+			res.setAgent(agent);
+			res.setPmUid(pmUid);
+			JSONObject crmInfoObj = null;
+			JSONParser parser  = new JSONParser();
+			try {
+			crmInfoObj = (JSONObject)parser.parse(crmInfo);
+			}
+			catch(Exception ex3) {
+				ex3.printStackTrace();
+				crmInfoObj=null;
+			}
+			if(crmInfoObj==null) {
+			crmInfoObj = new JSONObject();
+			crmInfoObj.put("crmInfoObj", "Either null or corrupted.");
+			}
+			
+			res.setCrmInfo(crmInfoObj);
+			if(agent!=null) {
+
+				res.setApplicationMode(agent.getAgentType());
+				res.setAgentMsisdn(agent.getMsisdn());
+				
+			}
+			else {
+				res.setApplicationMode("Self");
+				res.setAgentMsisdn(null);
+			}
+			res.setAddress(address);
+			res.setPermitValue(permitValue);
+			lsRes.add(res);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			continue;
+		}
+
+		}
+	}
+
+
+	return lsRes;
+
+
+
+}
+
+@Override
+public ResponseEntity<CoreResponseHandler> fetchThumb(String token) {
+	long l_time_start = System.currentTimeMillis();
+
+
+	CustomerDetail customerDetail =  custService.findByToken(token);
+	
+	if(customerDetail==null) {
+		long l_end_time = System.currentTimeMillis();
+		long l_diff = l_end_time-l_time_start;
+		return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "no customer in records with this token",l_diff+" ms"),HttpStatus.NOT_FOUND);
+
+	}
+	
+	 Image image = customerDetail.getImage();
+	 if(image==null) {
+			long l_end_time = System.currentTimeMillis();
+			long l_diff = l_end_time-l_time_start;
+			return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "no extra images found for this customer",l_diff+" ms"),HttpStatus.NOT_FOUND);
+
+		}
+	 
+	 String img64 =  image.getThumbImpression();
+	 
+	 String path = image.getThumbImpressionUrl();
+//	 if(img64==null) {
+//			long l_end_time = System.currentTimeMillis();
+//			long l_diff = l_end_time-l_time_start;
+//			return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "thumb image base64 not found for this customer",l_diff+" ms"),HttpStatus.NOT_FOUND);
+//
+//		}
+	 if(path==null) {
+			long l_end_time = System.currentTimeMillis();
+			long l_diff = l_end_time-l_time_start;
+			return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "thumb image path not found for this customer",l_diff+" ms"),HttpStatus.NOT_FOUND);
+
+		}
+	 
+	 
+	 
+	 JSONObject obj = new JSONObject();
+	 obj.put("token", token);
+	 obj.put("base64Thumb", img64);
+	 obj.put("thumbPath", path);
+		long l_end_time = System.currentTimeMillis();
+		long l_diff = l_end_time-l_time_start;
+
+	 return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL,obj,l_diff+" ms") ,HttpStatus.OK);
+}
+
+@Override
+public ResponseEntity<CoreResponseHandler> findByDateRangeEkycCounts(
+		String from, String to) {
+	long l_time_start = System.currentTimeMillis();
+
+	long ekycDateRange = repo.findTotalEkcyCountsDatewise(from+" 00:00:00", to+" 23:59:59");
+	long noekycDateRange = repo.findTotalNOEkcyCountsDatewise(from+" 00:00:00", to+" 23:59:59");
+	long ekycTotal=repo.findTotalEkcyCounts();
+	long noekycTotal=repo.findTotalNOEkcyCounts();
+	JSONObject obj = new JSONObject();
+	obj.put("daterange_ekyc_counts", ekycDateRange+"");
+	obj.put("daterange_noekyc_counts", noekycDateRange+"");
+//	obj.put("total_ekyc_counts", ekycTotal+"");
+//	obj.put("total_noekyc_counts", noekycTotal+"");
+//	
+	long l_end_time = System.currentTimeMillis();
+	long l_diff = l_end_time-l_time_start;
+
+ return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL,obj,l_diff+" ms") ,HttpStatus.OK);
+
+}
+
+@Override
+public ResponseEntity<CoreResponseHandler> findByTotalEkycCounts() {
+	long l_time_start = System.currentTimeMillis();
+
+	long ekycTotal=repo.findTotalEkcyCounts();
+	long noekycTotal=repo.findTotalNOEkcyCounts();
+	JSONObject obj = new JSONObject();
+//	obj.put("daterange_ekyc_counts", ekycDateRange+"");
+//	obj.put("daterange_noekyc_counts", noekycDateRange+"");
+	obj.put("total_ekyc_counts", ekycTotal+"");
+	obj.put("total_noekyc_counts", noekycTotal+"");
+	
+	long l_end_time = System.currentTimeMillis();
+	long l_diff = l_end_time-l_time_start;
+
+ return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL,obj,l_diff+" ms") ,HttpStatus.OK);
+
+}
+
+@Override
+public ResponseEntity<CoreResponseHandler> findAllDocuments(String token) {
+	long l_time_start = System.currentTimeMillis();
+
+
+	CustomerDetail customerDetail =  custService.findByToken(token);
+	
+	if(customerDetail==null) {
+		long l_end_time = System.currentTimeMillis();
+		long l_diff = l_end_time-l_time_start;
+		return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "no customer in records with this token",l_diff+" ms"),HttpStatus.NOT_FOUND);
+
+	}
+	
+	 Image image = customerDetail.getImage();
+	 Document document = customerDetail.getDocument();
+	 
+	 DocumentList dl  = new DocumentList();
+	 if(image!=null) {
+		 dl.setEkycPhotoUrl(image.getKycPhotoUrl());
+		 dl.setThumbImpressionUrl(image.getThumbImpressionUrl());
+		 dl.setVerifiedPhotoUrl(image.getVerifiedPhotoUrl());
+		 dl.setOriginalPhotoUrl(image.getOriginalPhotoUrl());
+		 
+	 }
+	 if(document!=null) {
+		 dl.setDocument1Url(document.getDocumentUrl());
+		 dl.setDocument2Url(document.getDocument2Url());
+		 dl.setDocument3Url(document.getDocument3Url());
+		 dl.setDocument4Url(document.getDocument4Url());
+		 dl.setDocument5Url(document.getDocument5Url());
+		 dl.setDocument6Url(document.getDocument6Url());
+		 dl.setDocument7Url(document.getDocument7Url());
+		 dl.setDocument8Url(document.getDocument8Url());
+		 dl.setDocument9Url(document.getDocument9Url());
+		 dl.setDocument10Url(document.getDocument10Url());
+		 dl.setDocument11Url(document.getDocument11Url());
+		 dl.setDocument12Url(document.getDocument12Url());
+		 dl.setDocument13Url(document.getDocument13Url());
+		 dl.setDocument14Url(document.getDocument14Url());
+		 dl.setDocument15Url(document.getDocument15Url());
+		 dl.setDocument16Url(document.getDocument16Url());
+		 dl.setDocument17Url(document.getDocument17Url());
+		 dl.setDocument18Url(document.getDocument18Url());
+		 dl.setDocument19Url(document.getDocument19Url());
+		 dl.setDocument20Url(document.getDocument20Url());
+	 }
+	 
+
+		long l_end_time = System.currentTimeMillis();
+		long l_diff = l_end_time-l_time_start;
+
+	 return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL,dl,l_diff+" ms") ,HttpStatus.OK);
+}
 
 }

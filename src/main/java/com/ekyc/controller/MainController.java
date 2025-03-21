@@ -60,6 +60,7 @@ import com.ekyc.beans.SimCase;
 import com.ekyc.beans.SpecialMsisdns_;
 import com.ekyc.beans.StatusUpdate;
 import com.ekyc.beans.VerifyMsisdnSpecial;
+import com.ekyc.model.Agent;
 import com.ekyc.model.CustomerDetail;
 import com.ekyc.model.OrgMsisdn;
 import com.ekyc.model.Organisation;
@@ -105,7 +106,6 @@ public class MainController {
 
 
 
-
 	/*
 	 *  * @GetMapping(value="updateVerified/{token}") public
 	 * ResponseEntity<CoreResponseHandler>
@@ -121,7 +121,7 @@ public class MainController {
 	/*@CrossOrigin(origins = "*", allowedHeaders = "*")*/ 
 	@PostMapping(value="processID")
 	public ResponseEntity<CoreResponseHandler> processid(@Valid @ModelAttribute final IdRequest idRequest,@RequestParam(name = "self",required = false)String self){
-
+		
 		return ekycService.callFirstOCR(idRequest,self);
 
 
@@ -909,12 +909,19 @@ public class MainController {
 	/*@CrossOrigin(origins = "*", allowedHeaders = "*")*/ 
 	@PostMapping(value="upload/thumbImage")
 	public ResponseEntity<CoreResponseHandler> processthumbimage(@Valid @ModelAttribute final IdRequest3 idRequest){
-
+		System.out.println("thumb Image : "+idRequest.getImage());
 		return ekycService.saveThumb(idRequest);
-
 
 	}
 
+	/*@CrossOrigin(origins = "*", allowedHeaders = "*")*/ 
+	@GetMapping(value="fetch/thumb/image/{token}")
+	public ResponseEntity<CoreResponseHandler> fetchthumbimage(@PathVariable(value="token",required = true)String token){
+
+		return ekycService.fetchThumb(token);
+
+
+	}
 
 	/*@CrossOrigin(origins = "*", allowedHeaders = "*")*/ 
 	@PostMapping(value="upload/selfie")
@@ -1064,7 +1071,7 @@ public class MainController {
 		return jwtToken;
 	}
 	@PostMapping(value="processMinimalKYC/{type}")
-	public ResponseEntity<CoreResponseHandler> processMinimalEkyc(@Valid @ModelAttribute final NoKYC ocrId, @PathVariable(name = "type",required = true)String type){
+	public ResponseEntity<CoreResponseHandler> processMinimalEkyc(@Valid @RequestBody final NoKYC ocrId, @PathVariable(name = "type",required = true)String type){
 		
 		return customerService.saveNoKYCCustomer(ocrId,type);
 		
@@ -1076,4 +1083,42 @@ public class MainController {
 		return regUserService.findUsers(user);
 
 	}
+	
+	
+	@PostMapping(value="agent/bulk/save")
+	public ResponseEntity<CoreResponseHandler> agentBulkSave(@RequestBody final List<Agent> lsAgent){
+		
+		return ekycService.agentBulkSave(lsAgent);
+		
+
+	}
+	@GetMapping(value="global/search/{value}")
+	public ResponseEntity<CoreResponseHandler> globalsearch(@PathVariable(value="value",required = true)String value){
+		return ekycService.globalsearch(value);
+
+	}
+
+	@GetMapping(value="ekyc/counts/daterange")
+	public ResponseEntity<CoreResponseHandler> ekyccountsdaterange(@RequestParam(value="from",required = true)String from,@RequestParam(value="to",required = true)String to){
+		return ekycService.findByDateRangeEkycCounts(from, to);
+
+	}	
+	
+	
+	@GetMapping(value="ekyc/counts/total")
+	public ResponseEntity<CoreResponseHandler> ekyccountstotal(){
+		return ekycService.findByTotalEkycCounts();
+
+	}	
+	
+	
+	@GetMapping(value="ekyc/fetch/docs/token/{token}")
+	public ResponseEntity<CoreResponseHandler> ekyccustomerdocsbytoken(@PathVariable(name="token",required = true)String token){
+		return ekycService.findAllDocuments(token);
+
+	}	
+		
+	
+	
+		
 }

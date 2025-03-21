@@ -27,4 +27,6 @@ public interface CustomerDetailService {
 	List<CustomerDetail> fetchByDate(String date);
 	
 	CustomerDetail findByMsisdn(String msisdn);
+	List<CustomerDetail> findByTokenOrName(String value);
+	
 }

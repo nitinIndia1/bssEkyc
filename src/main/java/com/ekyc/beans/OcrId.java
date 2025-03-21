@@ -16,7 +16,7 @@ public class OcrId implements Serializable{
 	private String firstName;
 	@NotBlank(message = "gender can not be blank")
 	private String gender;
-	@NotBlank(message = "id can not be blank")
+//	@NotBlank(message = "id can not be blank")
 	private String id;
 	private String lastName;
 //	@NotBlank(message = "selfie64 can not be blank")
@@ -25,7 +25,7 @@ public class OcrId implements Serializable{
 	
 	@NotBlank(message = "address can not be blank")
 	private String address;
-	@NotBlank(message = "email can not be blank")
+//	@NotBlank(message = "email can not be blank")
 	private String email;
 	//@NotBlank(message = "token can not be blank")
 	private String alternateNumber;
@@ -57,15 +57,15 @@ public class OcrId implements Serializable{
 	}
 
 public OcrId(
-		@NotBlank(message = "countryCode can not be blank") String countryCode,
-		@NotBlank(message = "dob can not be blank") String dob,
+		String countryCode,
+		String dob,
 		String firstName,
-		@NotBlank(message = "gender can not be blank") String gender,
-		@NotBlank(message = "id can not be blank") String id, String lastName,
-		@NotBlank(message = "address can not be blank") String address,
-		@NotBlank(message = "email can not be blank") String email,
+		String gender,
+		String id, String lastName,
+		String address,
+		String email,
 		String alternateNumber,
-		@NotBlank(message = "token can not be blank") String token) {
+		String token) {
 	this.countryCode = countryCode;
 	this.dob = dob;
 	this.firstName = firstName;

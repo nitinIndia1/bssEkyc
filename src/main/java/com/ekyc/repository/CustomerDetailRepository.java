@@ -52,7 +52,21 @@ public interface CustomerDetailRepository extends JpaRepository<CustomerDetail, 
 //	CustomerObject findById2(String id);
 
 	
+	@Query(value = "SELECT * FROM nauruekycservice.customer_details where first_name like ?1% or token like ?1% ;",nativeQuery = true)
+	List<CustomerDetail> findByTokenOrName(String value);
 	
 	
+	@Query(value = "select count(*) from customer_details where create_date between ?1 and ?2  and token not like 'N%' and kyc_status='verified' ;",nativeQuery = true)
+	long findTotalEkcyCountsDatewise(String from,String to);
+	
+	@Query(value = "select count(*) from customer_details where create_date between ?1 and ?2  and token like 'N%' ;",nativeQuery = true)
+	long findTotalNOEkcyCountsDatewise(String from,String to);
+	
+	@Query(value = "select count(*) from customer_details  where kyc_status='verified' and create_date > '2025-01-25 00:00:00' ;",nativeQuery = true)
+	long findTotalEkcyCounts();
+	
+	
+	@Query(value = "select count(*) from customer_details  where token like 'N%' and create_date > '2025-01-25 00:00:00' ;",nativeQuery = true)
+	long findTotalNOEkcyCounts();
 	
 }

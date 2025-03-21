@@ -40,25 +40,25 @@ public class NoKYC implements Serializable{
 		return countryCode;
 	}
 
-public NoKYC(
-		 String countryCode,
-		@NotBlank(message = "dob can not be blank") String dob,
-		@NotBlank(message = "firstName can not be blank") String firstName,
-		@NotBlank(message = "gender can not be blank") String gender,
-		String id, String lastName,
-		@NotBlank(message = "address can not be blank") String address,
-		@NotBlank(message = "email can not be blank") String email,
-		String alternateNumber) {
-	this.countryCode = countryCode;
-	this.dob = dob;
-	this.firstName = firstName;
-	this.gender = gender;
-	this.id = id;
-	this.lastName = lastName;
-	this.address = address;
-	this.email = email;
-	this.alternateNumber = alternateNumber;
-}
+	/*public NoKYC(
+			 String countryCode,
+			@NotBlank(message = "dob can not be blank") String dob,
+			@NotBlank(message = "firstName can not be blank") String firstName,
+			@NotBlank(message = "gender can not be blank") String gender,
+			String id, String lastName,
+			@NotBlank(message = "address can not be blank") String address,
+			@NotBlank(message = "email can not be blank") String email,
+			String alternateNumber) {
+		this.countryCode = countryCode;
+		this.dob = dob;
+		this.firstName = firstName;
+		this.gender = gender;
+		this.id = id;
+		this.lastName = lastName;
+		this.address = address;
+		this.email = email;
+		this.alternateNumber = alternateNumber;
+	}*/
 
 public String getDob() {
 	return dob;

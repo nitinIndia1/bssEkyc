@@ -156,6 +156,67 @@ public class OtpDetailController {
 	}
 	
 	
+	@GetMapping(value="setMpin/direct/{msisdn}/{mpin}")
+	public ResponseEntity<CoreResponseHandler> setMPINDirect(@PathVariable(value="msisdn",required=true)String msisdn,
+			@PathVariable(value="mpin",required=true)String mpin){
+
+		System.out.println("1");
+		long l_time_start = System.currentTimeMillis();
+
+		
+		OtpDetail otpDetail = repository.findByMsisdn(msisdn);
+		if(otpDetail==null) {
+			long	l_time_end = System.currentTimeMillis();
+			long	l_diff = l_time_end-l_time_start;
+				
+					return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "msisdn not found",l_diff+" ms"),HttpStatus.NOT_FOUND);
+
+		}
+		
+//		int z = 0;
+//		if(otpDetail!=null) {
+//			z = repository.updateStatus(msisdn);
+//		}
+//		if(z>0) {
+//
+//		}
+
+		
+		
+		
+		
+		
+		
+		List<OtpDetail> list = repository.findMsisdn(msisdn);
+		System.out.println("2");
+		Random random = new Random();
+		int iii = 0;
+		try {
+			if (list != null && list.size() > 0 /*&& list.get(0).getIsActive().equalsIgnoreCase("true")*/) 
+			iii = repository.updateMpin(mpin,msisdn);
+//		else {
+//			return sendOtpAgent(msisdn);
+//		
+//		}
+	}catch(Exception ex) {
+		ex.printStackTrace();
+		long l_time_end = System.currentTimeMillis();
+		long l_diff = l_time_end-l_time_start;
+		return	new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.INTERNAL_SERVER_ERROR, ResponseStatusEnum.FAILED, ApplicationResponse.Failed," > error ",l_diff+" ms"),HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+		System.out.println("##### "+iii);
+		if(iii>0) {
+			long l_time_end = System.currentTimeMillis();
+			long l_diff = l_time_end-l_time_start;
+			return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL, "MPIN Set",l_diff+" ms"),HttpStatus.OK);
+		}
+		else{
+			long l_time_end = System.currentTimeMillis();
+			long l_diff = l_time_end-l_time_start;
+			return	new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.INTERNAL_SERVER_ERROR, ResponseStatusEnum.FAILED, ApplicationResponse.Failed," > error ",l_diff+" ms"),HttpStatus.INTERNAL_SERVER_ERROR);			
+		}		
+	
+	}
 	
 	
 	/*@CrossOrigin(origins = "*", allowedHeaders = "*")*/
@@ -513,7 +574,7 @@ public class OtpDetailController {
 			l_time_end = System.currentTimeMillis();
 			l_diff = l_time_end-l_time_start;
 			
-				return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "verification failure. Mobile number - OTP mismatch or already active",l_diff+" ms"),HttpStatus.NOT_FOUND);
+				return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "The OTP you entered is incorrect. Please try again with the correct OTP sent to your registered mobile number.",l_diff+" ms"),HttpStatus.NOT_FOUND);
 		}
 		l_time_end = System.currentTimeMillis();
 		l_diff = l_time_end-l_time_start;
@@ -576,7 +637,7 @@ public class OtpDetailController {
 			l_time_end = System.currentTimeMillis();
 			l_diff = l_time_end-l_time_start;
 			
-				return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "verification failure. Mobile number - OTP mismatch or already active",l_diff+" ms"),HttpStatus.NOT_FOUND);
+				return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "The OTP you entered is incorrect. Please try again with the correct OTP sent to your registered mobile number.",l_diff+" ms"),HttpStatus.NOT_FOUND);
 		}
 		l_time_end = System.currentTimeMillis();
 		l_diff = l_time_end-l_time_start;
@@ -608,7 +669,33 @@ public class OtpDetailController {
 		}
 
 	}
+	@GetMapping(value="checkMpin/{msisdn}")
+	public ResponseEntity<CoreResponseHandler> checkMpin(@PathVariable(value="msisdn",required=true)String msisdn,HttpServletResponse response) throws Exception{
+		long l_time_start = System.currentTimeMillis();
+		long l_time_end = 0;
+		long l_diff = 0;
+		OtpDetail otpDetail = repository.findByMsisdn(msisdn);
+		
+		if(otpDetail==null) {
+			l_time_end = System.currentTimeMillis();
+			l_diff = l_time_end-l_time_start;
+				
+					return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "msisdn not found",l_diff+" ms"),HttpStatus.NOT_FOUND);
 
+		}
+		if(otpDetail.getMpin()==null || otpDetail.getMpin().equals("")) {
+			l_time_end = System.currentTimeMillis();
+			l_diff = l_time_end-l_time_start;
+					return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.NOT_FOUND, ResponseStatusEnum.FAILED, ApplicationResponse.Failed, "mpin not yet set",l_diff+" ms"),HttpStatus.NOT_FOUND);
+			
+		}
+		else {
+			l_time_end = System.currentTimeMillis();
+			l_diff = l_time_end-l_time_start;
+			return new	ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.OK, ResponseStatusEnum.SUCCESSFUL, ApplicationResponse.SUCCESSFUL, ""+otpDetail.getMpin(),l_diff+" ms"),HttpStatus.OK);
+		}
+
+	}
 	
 
 }

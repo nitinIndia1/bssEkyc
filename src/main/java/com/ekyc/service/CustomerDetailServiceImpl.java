@@ -74,7 +74,7 @@ public class CustomerDetailServiceImpl implements CustomerDetailService {
 			return new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.BAD_REQUEST, ResponseStatusEnum.FAILED, ApplicationResponse.Failed,"Tourist can not have a meter number",l_diff+" ms") ,HttpStatus.BAD_REQUEST);												
 		
 		}
-		
+		System.out.println("idRequest object : "+idRequest);
 		customerDetail.setIdType(idRequest.getIdType());
 		customerDetail.setResidentType(idRequest.getResidentType());
 		customerDetail.setUserType(idRequest.getUserType());
@@ -253,6 +253,10 @@ public class CustomerDetailServiceImpl implements CustomerDetailService {
 		return null;
 		//return	new ResponseEntity<CoreResponseHandler>(new SuccessResponseBeanRefined(HttpStatus.INTERNAL_SERVER_ERROR, ResponseStatusEnum.FAILED, ApplicationResponse.Failed,"ERROR",l_diff+" ms"),HttpStatus.INTERNAL_SERVER_ERROR);
 	
+	}
+	@Override
+	public List<CustomerDetail> findByTokenOrName(String value) {
+		return custRepository.findByTokenOrName(value);
 	}
 
 }
